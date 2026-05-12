@@ -1,5 +1,7 @@
 ## Directory
 
+# Demo: 
+https://github.com/user-attachments/assets/de8a0860-95b7-4a5b-928a-16add1a49089
 
 # DB-BMI.py: 
 Python script built by PscyhoPy Builder that runs the stimulus we want to present to the participants
