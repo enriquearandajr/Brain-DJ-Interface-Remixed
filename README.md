@@ -1,7 +1,14 @@
 # BDJI Directory
 
 ## Demo: 
+
+Instructions:
+
 https://github.com/user-attachments/assets/de8a0860-95b7-4a5b-928a-16add1a49089
+
+Summary:
+
+<img width="602" height="311" alt="Screenshot 2026-05-13 at 10 36 27 PM" src="https://github.com/user-attachments/assets/57697a4b-bb79-4c66-921f-1ebf5c5811a5" />
 
 ## DB-BMI.py: 
 Python script built by PscyhoPy Builder that runs the stimulus we want to present to the participants
