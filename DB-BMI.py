@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2026.1.3),
-    on Mon May  4 11:19:06 2026
+    on Wed May 13 17:02:38 2026
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -36,117 +36,169 @@ from psychopy.hardware import keyboard
 import threading
 import csv as csv_module
 import time
-import os
-from psychopy import core
+import math
+import random as _random
 
-# ==========================================
-# --- HARDWARE BYPASS / OFFLINE MODE ---
-# ==========================================
+# ============================================================
+# --- THREE-MODE HARDWARE AUTO-DETECTION ---
+# ============================================================
+
+HARDWARE_MODE = "DEMO"   # overwritten below if hardware/network found
+spi           = None
+drdy          = None
+lsl_inlet     = None
+
+# ---- Attempt Mode 1: Direct SPI on Pi -------------------------
 try:
     import spidev
     from gpiozero import DigitalInputDevice
-    HARDWARE_AVAILABLE = True
-    print("---------------------------------------------------")
-    print("PiEEG Hardware detected. EEG Recording ENABLED.")
-    print("---------------------------------------------------")
-except ImportError:
-    HARDWARE_AVAILABLE = False
-    print("---------------------------------------------------")
-    print("WARNING: spidev/gpiozero not found.")
-    print("Running in OFFLINE/TESTING mode. EEG Recording DISABLED.")
-    print("---------------------------------------------------")
 
-# --- Hardware Constants ---
-DRDY_PIN = 24  
-VREF = 4.5
-GAIN = 24
+    DRDY_PIN         = 24        
+    VREF             = 4.5       
+    GAIN             = 24        
+    BYTES_PER_SAMPLE = 54
 
-if HARDWARE_AVAILABLE:
-    # --- Pi 5 GPIO Setup ---
     drdy = DigitalInputDevice(DRDY_PIN, pull_up=True, active_state=False)
 
-    # --- PiEEG SPI Setup ---
     spi = spidev.SpiDev()
     spi.open(0, 0)
-    spi.max_speed_hz = 2000000
+    spi.max_speed_hz = 2_000_000
     spi.mode = 0b01
 
-    # --- SPI Initialization ---
-    spi.xfer2([0x06])   # RESET
-    time.sleep(0.1)
-    spi.xfer2([0x11])   # SDATAC
-    time.sleep(0.1)
-    spi.xfer2([0x43, 0x00, 0xE0]) # CONFIG3
-    time.sleep(0.01)
-    
-    # TODO: Update this line to send configuration to BOTH chips for the 16-channel board
-    spi.xfer2([0x45, 0x07, 0x60, 0x60, 0x60, 0x60, 0x60, 0x60, 0x60, 0x60]) # GAIN=24
-    time.sleep(0.01)
-    
-    spi.xfer2([0x10])   # RDATAC
-    time.sleep(0.1)
+    spi.xfer2([0x06]);                                                    time.sleep(0.1)   # RESET
+    spi.xfer2([0x11]);                                                    time.sleep(0.1)   # SDATAC
+    spi.xfer2([0x43, 0x00, 0xE0]);                                        time.sleep(0.01)  # CONFIG3
+    spi.xfer2([0x45, 0x07, 0x60, 0x60, 0x60, 0x60, 0x60, 0x60, 0x60, 0x60]); time.sleep(0.01)  # GAIN=24 
+    spi.xfer2([0x10]);                                                    time.sleep(0.1)   # RDATAC
 
-# --- Threading Variables ---
+    HARDWARE_MODE = "DIRECT"
+    print("---------------------------------------------------")
+    print("Mode: DIRECT — PiEEG hardware detected via SPI.")
+    print("EEG Recording ENABLED (reading hardware locally).")
+    print("---------------------------------------------------")
+
+except ImportError:
+    # spidev/gpiozero not available — try LSL network mode
+    try:
+        from pylsl import StreamInlet, resolve_byprop
+
+        _LSL_NAME    = "PiEEG"
+        _LSL_TIMEOUT = 5.0
+        print("---------------------------------------------------")
+        print(f"spidev not found — searching for LSL stream '{_LSL_NAME}'...")
+        print(f"(Timeout: {_LSL_TIMEOUT}s — ensure pieeg_lsl_streamer.py is running on the Pi)")
+        print("---------------------------------------------------")
+
+        _streams = resolve_byprop('name', _LSL_NAME, timeout=_LSL_TIMEOUT)
+        if _streams:
+            lsl_inlet = StreamInlet(_streams[0])
+            _si = lsl_inlet.info()
+            HARDWARE_MODE = "NETWORK"
+            print("---------------------------------------------------")
+            print(f"Mode: NETWORK — LSL stream '{_si.name()}' found.")
+            print(f"  {_si.channel_count()} channels | {_si.nominal_srate()} Hz")
+            print("EEG Recording ENABLED (streaming from Pi over network).")
+            print("---------------------------------------------------")
+        else:
+            print("---------------------------------------------------")
+            print(f"No LSL stream '{_LSL_NAME}' found after {_LSL_TIMEOUT}s.")
+            print("Mode: DEMO — Running with synthetic EEG data.")
+            print("---------------------------------------------------")
+
+    except ImportError:
+        print("---------------------------------------------------")
+        print("pylsl not found. Install with: pip install pylsl")
+        print("Mode: DEMO — Running with synthetic EEG data.")
+        print("---------------------------------------------------")
+
+# ---- Threading variables (shared across all three modes) ------
 eeg_stop_event = threading.Event()
-eeg_data = []
-eeg_lock = threading.Lock()
-eeg_thread = None
-drdy_timeouts = 0  # Tracks timing drift/glitches
-runAtExit = [] # <--- ADD THIS LINE HERE
+eeg_data       = []
+eeg_lock       = threading.Lock()
+eeg_thread     = None
+drdy_timeouts  = 0   
 
-# --- Failsafe Cleanup ---
-def cleanup_spi():
+def cleanup_hardware():
+    """Stop the EEG thread and release hardware/network resources."""
     eeg_stop_event.set()
     if eeg_thread is not None:
         eeg_thread.join(timeout=1.0)
-    
-    if HARDWARE_AVAILABLE:
+    if HARDWARE_MODE == "DIRECT":
         try:
+            spi.xfer2([0x11])   
             spi.close()
-            drdy.close() # Free GPIO to prevent hanging on exit
-        except:
+            drdy.close()        
+        except Exception:
             pass
-runAtExit.append(cleanup_spi)
+    elif HARDWARE_MODE == "NETWORK" and lsl_inlet is not None:
+        try:
+            lsl_inlet.close_stream()
+        except Exception:
+            pass
 
 def record_eeg():
-    if not HARDWARE_AVAILABLE:
-        return # Do not run this loop if hardware is not connected
-
+    """Read EEG samples and buffer them in eeg_data. Runs in a daemon thread."""
     global eeg_data, drdy_timeouts
     sample_count = 0
-    
-    while not eeg_stop_event.is_set():
-        # Polling: Wait up to 0.1s for DRDY
-        drdy.wait_for_active(timeout=0.1)
-        
-        if not drdy.is_active:
-            drdy_timeouts += 1  # Log dropped sample / glitch
-            continue 
-            
-        raw = spi.readbytes(51) 
-        timestamp = core.getTime()
-        channels = []
-        
-        for ch in range(16): 
-            byte1 = raw[3 + ch * 3]
-            byte2 = raw[4 + ch * 3]
-            byte3 = raw[5 + ch * 3]
-            val = (byte1 << 16) | (byte2 << 8) | byte3
-            
-            if val >= 0x800000:
-                val -= 0x1000000
-            uv = val * (VREF / GAIN / (2**23 - 1)) * 1e6
-            channels.append(round(uv, 4))
-            
-        with eeg_lock:
-            eeg_data.append([timestamp] + channels)
-            
-        sample_count += 1
-        
-        # Lightweight Real-Time Monitoring (Outputs to PsychoPy Runner Console)
-        # Prints a heartbeat every 250 samples (~1 second)
-        if sample_count % 250 == 0:
-            print(f"[PiEEG Heartbeat] {sample_count} samples. Ch1: {channels[0]:.2f} uV | Timeouts: {drdy_timeouts}")
+
+    if HARDWARE_MODE == "DIRECT":
+        while not eeg_stop_event.is_set():
+            if not drdy.wait_for_active(timeout=0.1):
+                drdy_timeouts += 1
+                continue
+
+            raw       = spi.readbytes(BYTES_PER_SAMPLE)
+            timestamp = core.getTime()
+            channels  = []
+
+            for ch in range(8):
+                offset = 3 + ch * 3
+                b1, b2, b3 = raw[offset], raw[offset + 1], raw[offset + 2]
+                val = (b1 << 16) | (b2 << 8) | b3
+                if val >= 0x800000: val -= 0x1000000
+                channels.append(round(val * (VREF / GAIN / (2**23 - 1)) * 1e6, 4))
+
+            for ch in range(8):
+                offset = 30 + ch * 3
+                b1, b2, b3 = raw[offset], raw[offset + 1], raw[offset + 2]
+                val = (b1 << 16) | (b2 << 8) | b3
+                if val >= 0x800000: val -= 0x1000000
+                channels.append(round(val * (VREF / GAIN / (2**23 - 1)) * 1e6, 4))
+
+            with eeg_lock:
+                eeg_data.append([timestamp] + channels)
+            sample_count += 1
+            if sample_count % 250 == 0:
+                print(f"[PiEEG DIRECT]   {sample_count:6d} samples | Ch1: {channels[0]:7.2f} µV | Timeouts: {drdy_timeouts}")
+
+    elif HARDWARE_MODE == "NETWORK":
+        while not eeg_stop_event.is_set():
+            sample, timestamp = lsl_inlet.pull_sample(timeout=0.1)
+            if sample is None:
+                drdy_timeouts += 1
+                continue
+            with eeg_lock:
+                eeg_data.append([timestamp] + list(sample))
+            sample_count += 1
+            if sample_count % 250 == 0:
+                print(f"[PiEEG NETWORK]  {sample_count:6d} samples | Ch1: {sample[0]:7.2f} µV | Missed: {drdy_timeouts}")
+
+    else:
+        _DEMO_FREQS = [8, 10, 12, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75]
+        t_start = time.time()
+        while not eeg_stop_event.is_set():
+            t_now     = time.time() - t_start
+            timestamp = core.getTime()
+            channels  = [
+                round(50.0 * math.sin(2 * math.pi * freq * t_now) + 3.0 * (_random.random() - 0.5), 4)
+                for freq in _DEMO_FREQS
+            ]
+            with eeg_lock:
+                eeg_data.append([timestamp] + channels)
+            sample_count += 1
+            if sample_count % 250 == 0:
+                print(f"[PiEEG DEMO]     {sample_count:6d} synthetic samples | Ch1: {channels[0]:7.2f} µV")
+            time.sleep(1.0 / 250.0)
 
 # --- Setup global variables (available in all functions) ---
 deviceManager = hardware.DeviceManager()
@@ -155,6 +207,8 @@ psychopyVersion = '2026.1.3'
 expName = 'DB-BMI'  
 expVersion = ''
 runAtExit = []
+runAtExit.append(cleanup_hardware)
+
 expInfo = {
     'participant': f"{randint(0, 999999):06.0f}",
     'session': '001',
@@ -179,8 +233,9 @@ def showExpInfoDlg(expInfo):
         dictionary=expInfo, sortKeys=False, title=expName, alwaysOnTop=True
     )
     if dlg.OK == False:
-        core.quit()  
+        core.quit() 
     return expInfo
+
 
 def setupData(expInfo, dataDir=None):
     for key, val in expInfo.copy().items():
@@ -206,6 +261,7 @@ def setupData(expInfo, dataDir=None):
     thisExp.setPriority('expName', priority.LOW)
     return thisExp
 
+
 def setupLogging(filename):
     if PILOTING:
         logging.console.setLevel(prefs.piloting['pilotConsoleLoggingLevel'])
@@ -217,6 +273,7 @@ def setupLogging(filename):
     else:
         logFile.setLevel(logging.getLevel('info'))
     return logFile
+
 
 def setupWindow(expInfo=None, win=None):
     if PILOTING:
@@ -239,9 +296,9 @@ def setupWindow(expInfo=None, win=None):
         win.backgroundFit = 'none'
         win.units = 'height'
     if expInfo is not None:
-        if win._monitorFrameRate is None:
-            win._monitorFrameRate = win.getActualFrameRate(infoMsg='Attempting to measure frame rate of screen, please wait...')
-        expInfo['frameRate'] = win._monitorFrameRate
+        # Bypass the measurement hang and force standard 60 FPS
+        win._monitorFrameRate = 60.0  
+        expInfo['frameRate'] = 60.0
     win.hideMessage()
     if PILOTING:
         if prefs.piloting['showPilotingIndicator']:
@@ -249,6 +306,7 @@ def setupWindow(expInfo=None, win=None):
         if prefs.piloting['forceMouseVisible']:
             win.mouseVisible = True
     return win
+
 
 def setupDevices(expInfo, thisExp, win):
     ioConfig = {}
@@ -289,6 +347,7 @@ def pauseExperiment(thisExp, win=None, timers=[], currentRoutine=None):
     for timer in timers:
         timer.addTime(-pauseTimer.getTime())
 
+
 def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     thisExp.status = STARTED
     expInfo['date'] = data.getDateStr()
@@ -327,8 +386,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         color='white', colorSpace='rgb', opacity=None, 
         languageStyle='LTR',
         depth=-1.0);
-    
     counter = 0
+    summary_text = "Your Song Ratings:\n\n"
     
     CloseEyesText = visual.TextStim(win=win, name='CloseEyesText',
         text='',
@@ -357,7 +416,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     )
     beep.setVolume(1.0)
     RateSongText = visual.TextStim(win=win, name='RateSongText',
-        text='Rate the song from 1 (Strongly Dislike) - 7 (Strongly Like)\n\nPress [1], [2], [3], [4], [5], [6], or [7]',
+        text='Rate the song from 1 (Strongly Dislike) - 7 (Strongly Like)\n\nPress [1-7]',
         font='Arial',
         pos=(0, 0), draggable=False, height=0.05, wrapWidth=None, ori=0.0, 
         color='white', colorSpace='rgb', opacity=None, 
@@ -381,6 +440,13 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         color='white', colorSpace='rgb', opacity=None, 
         languageStyle='LTR',
         depth=0.0);
+    Summary = visual.TextStim(win=win, name='Summary',
+        text='',
+        font='Arial',
+        pos=(0, 0), draggable=False, height=0.05, wrapWidth=None, ori=0.0, 
+        color='white', colorSpace='rgb', opacity=None, 
+        languageStyle='LTR',
+        depth=-1.0);
     
     if globalClock is None:
         globalClock = core.Clock()
@@ -427,7 +493,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     
     thisExp.currentRoutine = Welcome
     Welcome.forceEnded = routineForceEnded = not continueRoutine
-    while continueRoutine and routineTimer.getTime() < 16.0:
+    while continueRoutine and routineTimer.getTime() < 12.0:
         t = routineTimer.getTime()
         tThisFlip = win.getFutureFlipTime(clock=routineTimer)
         tThisFlipGlobal = win.getFutureFlipTime(clock=None)
@@ -446,7 +512,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             pass
         
         if instructionsText.status == STARTED:
-            if tThisFlipGlobal > instructionsText.tStartRefresh + 13.0-frameTolerance:
+            if tThisFlipGlobal > instructionsText.tStartRefresh + 9.0-frameTolerance:
                 instructionsText.tStop = t  
                 instructionsText.tStopRefresh = tThisFlipGlobal  
                 instructionsText.frameNStop = frameN  
@@ -513,16 +579,20 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     elif Welcome.forceEnded:
         routineTimer.reset()
     else:
-        routineTimer.addTime(-16.000000)
+        routineTimer.addTime(-12.000000)
     thisExp.nextEntry()
     
     trials = data.TrialHandler2(
         name='trials',
-        nReps=5, 
+        nReps=1, 
         method='random', 
         extraInfo=expInfo, 
         originPath=-1, 
-        trialList=data.importConditions('dur_song_diversity_100.csv - Sheet1.csv'), 
+        trialList=data.importConditions(
+        'dur_song_diversity_100.csv - Sheet1.csv', 
+        selection=np.random.choice(100, 5, replace=False)
+    )
+    , 
         seed=None, 
         isTrials=True, 
     )
@@ -552,20 +622,22 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         )
         CloseEyes_Song.status = NOT_STARTED
         continueRoutine = True
-        
+
+        # ==========================================
+        # START EEG THREAD FOR EVERY MODE
+        # ==========================================
         with eeg_lock:
             eeg_data.clear()
         
         drdy_timeouts = 0 
         eeg_stop_event.clear()
         
-        # --- Start hardware thread only if connected ---
-        if HARDWARE_AVAILABLE:
-            eeg_thread = threading.Thread(target=record_eeg, daemon=True)
-            eeg_thread.start()
-            
+        eeg_thread = threading.Thread(target=record_eeg, daemon=True)
+        eeg_thread.start()
+        # ==========================================
+
         CloseEyesText.setText('Please close your eyes\n\nThe song will begin to play shortly\n')
-        song_played.setSound(filePath, hamming=True)
+        song_played.setSound(filePath, secs=45, hamming=True)
         song_played.setVolume(1.0, log=False)
         song_played.seek(0)
         CloseEyes_Song.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
@@ -587,7 +659,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         
         thisExp.currentRoutine = CloseEyes_Song
         CloseEyes_Song.forceEnded = routineForceEnded = not continueRoutine
-        while continueRoutine:
+        while continueRoutine and routineTimer.getTime() < 48.0:
             if hasattr(thisTrial, 'status') and thisTrial.status == STOPPING:
                 continueRoutine = False
             t = routineTimer.getTime()
@@ -608,7 +680,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 pass
             
             if CloseEyesText.status == STARTED:
-                if tThisFlipGlobal > CloseEyesText.tStartRefresh + 5.0-frameTolerance:
+                if tThisFlipGlobal > CloseEyesText.tStartRefresh + 3.0-frameTolerance:
                     CloseEyesText.tStop = t  
                     CloseEyesText.tStopRefresh = tThisFlipGlobal  
                     CloseEyesText.frameNStop = frameN  
@@ -616,7 +688,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     CloseEyesText.status = FINISHED
                     CloseEyesText.setAutoDraw(False)
             
-            if song_played.status == NOT_STARTED and tThisFlip >= 5-frameTolerance:
+            if song_played.status == NOT_STARTED and tThisFlip >= 3-frameTolerance:
                 song_played.frameNStart = frameN  
                 song_played.tStart = t  
                 song_played.tStartRefresh = tThisFlipGlobal  
@@ -625,7 +697,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 song_played.play(when=win)  
             
             if song_played.status == STARTED:
-                if bool(False) or song_played.isFinished:
+                if tThisFlipGlobal > song_played.tStartRefresh + 45-frameTolerance or song_played.isFinished:
                     song_played.tStop = t  
                     song_played.tStopRefresh = tThisFlipGlobal  
                     song_played.frameNStop = frameN  
@@ -663,52 +735,54 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         for thisComponent in CloseEyes_Song.components:
             if hasattr(thisComponent, "setAutoDraw"):
                 thisComponent.setAutoDraw(False)
-        
-        # --- Handle hardware closing only if connected ---
-        eeg_stop_event.set()
-        
-        if HARDWARE_AVAILABLE and eeg_thread is not None:
-            eeg_thread.join(timeout=2.0) 
-        
-        if HARDWARE_AVAILABLE:
-            with eeg_lock:
-                data_to_save = list(eeg_data) 
-                eeg_data.clear()              
-            
-            if data_to_save:
-                os.makedirs('data', exist_ok=True)
-                song_basename = os.path.splitext(os.path.basename(filePath))[0]
-                eeg_filename = f"data/{expInfo['participant']}_{expName}_trial{trials.thisN}_{song_basename}_eeg.csv"
-                
-                with open(eeg_filename, 'w', newline='') as f:
-                    writer = csv_module.writer(f)
-                    writer.writerow([
-                        'timestamp_s', 
-                        'ch1_uV', 'ch2_uV', 'ch3_uV', 'ch4_uV', 
-                        'ch5_uV', 'ch6_uV', 'ch7_uV', 'ch8_uV',
-                        'ch9_uV', 'ch10_uV', 'ch11_uV', 'ch12_uV', 
-                        'ch13_uV', 'ch14_uV', 'ch15_uV', 'ch16_uV'
-                    ])
-                    writer.writerows(data_to_save)
-                        
-                thisExp.addData('eeg_file', eeg_filename)
-                thisExp.addData('eeg_samples', len(data_to_save))
-                thisExp.addData('drdy_timeouts', drdy_timeouts) 
-            else:
-                thisExp.addData('eeg_file', 'NO_DATA')
-                thisExp.addData('eeg_samples', 0)
-                thisExp.addData('drdy_timeouts', drdy_timeouts)
-        else:
-            # If offline, just log that we didn't record anything
-            thisExp.addData('eeg_file', 'OFFLINE_MODE')
-            thisExp.addData('eeg_samples', 0)
-            thisExp.addData('drdy_timeouts', 0)
-
         CloseEyes_Song.tStop = globalClock.getTime(format='float')
         CloseEyes_Song.tStopRefresh = tThisFlipGlobal
         thisExp.addData('CloseEyes_Song.stopped', CloseEyes_Song.tStop)
+        
+        # ==========================================
+        # STOP EEG THREAD AND SAVE TO CSV
+        # ==========================================
+        eeg_stop_event.set()
+        
+        if eeg_thread is not None:
+            eeg_thread.join(timeout=2.0) 
+        
+        with eeg_lock:
+            data_to_save = list(eeg_data)
+            eeg_data.clear()              
+        
+        if data_to_save:
+            os.makedirs('data', exist_ok=True)
+            song_basename = os.path.splitext(os.path.basename(filePath))[0]
+            eeg_filename = f"data/{expInfo['participant']}_{expName}_trial{trials.thisN}_{song_basename}_eeg.csv"
+            
+            with open(eeg_filename, 'w', newline='') as f:
+                writer = csv_module.writer(f)
+                writer.writerow([
+                    'timestamp_s', 
+                    'ch1_uV', 'ch2_uV', 'ch3_uV', 'ch4_uV', 
+                    'ch5_uV', 'ch6_uV', 'ch7_uV', 'ch8_uV',
+                    'ch9_uV', 'ch10_uV', 'ch11_uV', 'ch12_uV', 
+                    'ch13_uV', 'ch14_uV', 'ch15_uV', 'ch16_uV'
+                ])
+                writer.writerows(data_to_save)
+                    
+            thisExp.addData('eeg_file', eeg_filename)
+            thisExp.addData('eeg_samples', len(data_to_save))
+            thisExp.addData('drdy_timeouts', drdy_timeouts) 
+        else:
+            thisExp.addData('eeg_file', 'NO_DATA')
+            thisExp.addData('eeg_samples', 0)
+            thisExp.addData('drdy_timeouts', drdy_timeouts)
+        # ==========================================
+        
         song_played.pause()  
-        routineTimer.reset()
+        if CloseEyes_Song.maxDurationReached:
+            routineTimer.addTime(-CloseEyes_Song.maxDuration)
+        elif CloseEyes_Song.forceEnded:
+            routineTimer.reset()
+        else:
+            routineTimer.addTime(-48.000000)
         
         RateSong = data.Routine(
             name='RateSong',
@@ -839,6 +913,9 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         if song_rating.keys != None:  
             trials.addData('song_rating.rt', song_rating.rt)
             trials.addData('song_rating.duration', song_rating.duration)
+        
+        rating = song_rating.keys if song_rating.keys else "None"
+        summary_text += f"{song} - Rating: {rating}\n"
         routineTimer.reset()
         
         Familiarity = data.Routine(
@@ -969,10 +1046,11 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     
     ThankYou = data.Routine(
         name='ThankYou',
-        components=[ThankYouText],
+        components=[ThankYouText, Summary],
     )
     ThankYou.status = NOT_STARTED
     continueRoutine = True
+    Summary.setText(summary_text)
     ThankYou.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
     ThankYou.tStart = globalClock.getTime(format='float')
     ThankYou.status = STARTED
@@ -992,13 +1070,13 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     
     thisExp.currentRoutine = ThankYou
     ThankYou.forceEnded = routineForceEnded = not continueRoutine
-    while continueRoutine and routineTimer.getTime() < 5.0:
+    while continueRoutine and routineTimer.getTime() < 13.0:
         t = routineTimer.getTime()
         tThisFlip = win.getFutureFlipTime(clock=routineTimer)
         tThisFlipGlobal = win.getFutureFlipTime(clock=None)
         frameN = frameN + 1  
         
-        if ThankYouText.status == NOT_STARTED and tThisFlip >= 0.0-frameTolerance:
+        if ThankYouText.status == NOT_STARTED and tThisFlip >= 5-frameTolerance:
             ThankYouText.frameNStart = frameN  
             ThankYouText.tStart = t  
             ThankYouText.tStartRefresh = tThisFlipGlobal  
@@ -1011,13 +1089,34 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             pass
         
         if ThankYouText.status == STARTED:
-            if tThisFlipGlobal > ThankYouText.tStartRefresh + 5-frameTolerance:
+            if tThisFlipGlobal > ThankYouText.tStartRefresh + 8-frameTolerance:
                 ThankYouText.tStop = t  
                 ThankYouText.tStopRefresh = tThisFlipGlobal  
                 ThankYouText.frameNStop = frameN  
                 thisExp.timestampOnFlip(win, 'ThankYouText.stopped')
                 ThankYouText.status = FINISHED
                 ThankYouText.setAutoDraw(False)
+        
+        if Summary.status == NOT_STARTED and tThisFlip >= 0.0-frameTolerance:
+            Summary.frameNStart = frameN  
+            Summary.tStart = t  
+            Summary.tStartRefresh = tThisFlipGlobal  
+            win.timeOnFlip(Summary, 'tStartRefresh')  
+            thisExp.timestampOnFlip(win, 'Summary.started')
+            Summary.status = STARTED
+            Summary.setAutoDraw(True)
+        
+        if Summary.status == STARTED:
+            pass
+        
+        if Summary.status == STARTED:
+            if tThisFlipGlobal > Summary.tStartRefresh + 5-frameTolerance:
+                Summary.tStop = t  
+                Summary.tStopRefresh = tThisFlipGlobal  
+                Summary.frameNStop = frameN  
+                thisExp.timestampOnFlip(win, 'Summary.stopped')
+                Summary.status = FINISHED
+                Summary.setAutoDraw(False)
         
         if defaultKeyboard.getKeys(keyList=["escape"]):
             thisExp.status = FINISHED
@@ -1057,23 +1156,18 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     elif ThankYou.forceEnded:
         routineTimer.reset()
     else:
-        routineTimer.addTime(-5.000000)
+        routineTimer.addTime(-13.000000)
     thisExp.nextEntry()
     
-    # --- Disconnect hardware only if connected ---
-    if HARDWARE_AVAILABLE:
-        try:
-            spi.close()
-            drdy.close()
-        except:
-            pass
-    
+    # mark experiment as finished
     endExperiment(thisExp, win=win)
+
 
 def saveData(thisExp):
     filename = thisExp.dataFileName
     thisExp.saveAsWideText(filename + '.csv', delim='auto')
     thisExp.saveAsPickle(filename)
+
 
 def endExperiment(thisExp, win=None):
     if thisExp.currentRoutine is not None:
@@ -1088,8 +1182,9 @@ def endExperiment(thisExp, win=None):
         fcn()
     logging.flush()
 
+
 def quit(thisExp, win=None, thisSession=None):
-    thisExp.abort()  
+    thisExp.abort() 
     if win is not None:
         win.flip()
         win.close()
@@ -1097,6 +1192,7 @@ def quit(thisExp, win=None, thisSession=None):
     if thisSession is not None:
         thisSession.stop()
     core.quit()
+
 
 if __name__ == '__main__':
     expInfo = showExpInfoDlg(expInfo=expInfo)
