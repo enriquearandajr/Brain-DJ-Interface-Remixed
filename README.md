@@ -17,6 +17,9 @@ Python script built by PscyhoPy Builder that runs the stimulus we want to presen
 ## pieeg_lsl_streamer.py:
 Python script that reads 16-channel EEG data from a PiEEG board using SPI and broadcasting it as an LSL stream.
 
+## pieeg_lsl_helper.py:
+Python script that provides helper functions for both DB-BMI.py and pieeg_lsl_streamer.py
+
 ## data_filtering.ipynb:
 Python notebook with current filtering methods using test data from our unofficial EEG data
 
