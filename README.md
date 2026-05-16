@@ -14,7 +14,8 @@ Summary:
 ## DB-BMI.py: 
 Python script built by PscyhoPy Builder that runs the stimulus we want to present to the participants
 
-To-Do: incorporate piEEG serial ports to be able to record EEG data from the piEEG dry cap
+## pieeg_lsl_streamer.py:
+Python script that reads 16-channel EEG data from a PiEEG board using SPI and broadcasting it as an LSL stream.
 
 ## data_filtering.ipynb:
 Python notebook with current filtering methods using test data from our unofficial EEG data
