@@ -33,172 +33,13 @@ import sys  # to get file system encoding
 from psychopy.hardware import keyboard
 
 # Run 'Before Experiment' code from pieegRecord
-import threading
-import csv as csv_module
-import time
-import math
-import random as _random
+from pieeg_lsl_helper import PiEEGRecorder, sanitize_filename_component, write_eeg_csv
 
-# ============================================================
-# --- THREE-MODE HARDWARE AUTO-DETECTION ---
-# ============================================================
-
-HARDWARE_MODE = "DEMO"   # overwritten below if hardware/network found
-spi           = None
-drdy          = None
-lsl_inlet     = None
-
-# ---- Attempt Mode 1: Direct SPI on Pi -------------------------
-try:
-    import spidev
-    from gpiozero import DigitalInputDevice
-
-    DRDY_PIN         = 24        
-    VREF             = 4.5       
-    GAIN             = 24        
-    BYTES_PER_SAMPLE = 54
-
-    drdy = DigitalInputDevice(DRDY_PIN, pull_up=True, active_state=False)
-
-    spi = spidev.SpiDev()
-    spi.open(0, 0)
-    spi.max_speed_hz = 2_000_000
-    spi.mode = 0b01
-
-    spi.xfer2([0x06]);                                                    time.sleep(0.1)   # RESET
-    spi.xfer2([0x11]);                                                    time.sleep(0.1)   # SDATAC
-    spi.xfer2([0x43, 0x00, 0xE0]);                                        time.sleep(0.01)  # CONFIG3
-    spi.xfer2([0x45, 0x07, 0x60, 0x60, 0x60, 0x60, 0x60, 0x60, 0x60, 0x60]); time.sleep(0.01)  # GAIN=24 
-    spi.xfer2([0x10]);                                                    time.sleep(0.1)   # RDATAC
-
-    HARDWARE_MODE = "DIRECT"
-    print("---------------------------------------------------")
-    print("Mode: DIRECT — PiEEG hardware detected via SPI.")
-    print("EEG Recording ENABLED (reading hardware locally).")
-    print("---------------------------------------------------")
-
-except ImportError:
-    # spidev/gpiozero not available — try LSL network mode
-    try:
-        from pylsl import StreamInlet, resolve_byprop
-
-        _LSL_NAME    = "PiEEG"
-        _LSL_TIMEOUT = 5.0
-        print("---------------------------------------------------")
-        print(f"spidev not found — searching for LSL stream '{_LSL_NAME}'...")
-        print(f"(Timeout: {_LSL_TIMEOUT}s — ensure pieeg_lsl_streamer.py is running on the Pi)")
-        print("---------------------------------------------------")
-
-        _streams = resolve_byprop('name', _LSL_NAME, timeout=_LSL_TIMEOUT)
-        if _streams:
-            lsl_inlet = StreamInlet(_streams[0])
-            _si = lsl_inlet.info()
-            HARDWARE_MODE = "NETWORK"
-            print("---------------------------------------------------")
-            print(f"Mode: NETWORK — LSL stream '{_si.name()}' found.")
-            print(f"  {_si.channel_count()} channels | {_si.nominal_srate()} Hz")
-            print("EEG Recording ENABLED (streaming from Pi over network).")
-            print("---------------------------------------------------")
-        else:
-            print("---------------------------------------------------")
-            print(f"No LSL stream '{_LSL_NAME}' found after {_LSL_TIMEOUT}s.")
-            print("Mode: DEMO — Running with synthetic EEG data.")
-            print("---------------------------------------------------")
-
-    except ImportError:
-        print("---------------------------------------------------")
-        print("pylsl not found. Install with: pip install pylsl")
-        print("Mode: DEMO — Running with synthetic EEG data.")
-        print("---------------------------------------------------")
-
-# ---- Threading variables (shared across all three modes) ------
-eeg_stop_event = threading.Event()
-eeg_data       = []
-eeg_lock       = threading.Lock()
-eeg_thread     = None
-drdy_timeouts  = 0   
+pieeg_recorder = PiEEGRecorder(timestamp_fn=core.getTime)
 
 def cleanup_hardware():
-    """Stop the EEG thread and release hardware/network resources."""
-    eeg_stop_event.set()
-    if eeg_thread is not None:
-        eeg_thread.join(timeout=1.0)
-    if HARDWARE_MODE == "DIRECT":
-        try:
-            spi.xfer2([0x11])   
-            spi.close()
-            drdy.close()        
-        except Exception:
-            pass
-    elif HARDWARE_MODE == "NETWORK" and lsl_inlet is not None:
-        try:
-            lsl_inlet.close_stream()
-        except Exception:
-            pass
-
-def record_eeg():
-    """Read EEG samples and buffer them in eeg_data. Runs in a daemon thread."""
-    global eeg_data, drdy_timeouts
-    sample_count = 0
-
-    if HARDWARE_MODE == "DIRECT":
-        while not eeg_stop_event.is_set():
-            if not drdy.wait_for_active(timeout=0.1):
-                drdy_timeouts += 1
-                continue
-
-            raw       = spi.readbytes(BYTES_PER_SAMPLE)
-            timestamp = core.getTime()
-            channels  = []
-
-            for ch in range(8):
-                offset = 3 + ch * 3
-                b1, b2, b3 = raw[offset], raw[offset + 1], raw[offset + 2]
-                val = (b1 << 16) | (b2 << 8) | b3
-                if val >= 0x800000: val -= 0x1000000
-                channels.append(round(val * (VREF / GAIN / (2**23 - 1)) * 1e6, 4))
-
-            for ch in range(8):
-                offset = 30 + ch * 3
-                b1, b2, b3 = raw[offset], raw[offset + 1], raw[offset + 2]
-                val = (b1 << 16) | (b2 << 8) | b3
-                if val >= 0x800000: val -= 0x1000000
-                channels.append(round(val * (VREF / GAIN / (2**23 - 1)) * 1e6, 4))
-
-            with eeg_lock:
-                eeg_data.append([timestamp] + channels)
-            sample_count += 1
-            if sample_count % 250 == 0:
-                print(f"[PiEEG DIRECT]   {sample_count:6d} samples | Ch1: {channels[0]:7.2f} µV | Timeouts: {drdy_timeouts}")
-
-    elif HARDWARE_MODE == "NETWORK":
-        while not eeg_stop_event.is_set():
-            sample, timestamp = lsl_inlet.pull_sample(timeout=0.1)
-            if sample is None:
-                drdy_timeouts += 1
-                continue
-            with eeg_lock:
-                eeg_data.append([timestamp] + list(sample))
-            sample_count += 1
-            if sample_count % 250 == 0:
-                print(f"[PiEEG NETWORK]  {sample_count:6d} samples | Ch1: {sample[0]:7.2f} µV | Missed: {drdy_timeouts}")
-
-    else:
-        _DEMO_FREQS = [8, 10, 12, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75]
-        t_start = time.time()
-        while not eeg_stop_event.is_set():
-            t_now     = time.time() - t_start
-            timestamp = core.getTime()
-            channels  = [
-                round(50.0 * math.sin(2 * math.pi * freq * t_now) + 3.0 * (_random.random() - 0.5), 4)
-                for freq in _DEMO_FREQS
-            ]
-            with eeg_lock:
-                eeg_data.append([timestamp] + channels)
-            sample_count += 1
-            if sample_count % 250 == 0:
-                print(f"[PiEEG DEMO]     {sample_count:6d} synthetic samples | Ch1: {channels[0]:7.2f} µV")
-            time.sleep(1.0 / 250.0)
+    """Stop EEG acquisition and release PiEEG/LSL resources."""
+    pieeg_recorder.shutdown()
 
 # --- Setup global variables (available in all functions) ---
 deviceManager = hardware.DeviceManager()
@@ -623,21 +464,11 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         CloseEyes_Song.status = NOT_STARTED
         continueRoutine = True
 
-        # ==========================================
-        # START EEG THREAD FOR EVERY MODE
-        # ==========================================
-        with eeg_lock:
-            eeg_data.clear()
-        
-        drdy_timeouts = 0 
-        eeg_stop_event.clear()
-        
-        eeg_thread = threading.Thread(target=record_eeg, daemon=True)
-        eeg_thread.start()
-        # ==========================================
+        # Start a fresh PiEEG buffer for this song trial.
+        pieeg_recorder.start_trial()
 
         CloseEyesText.setText('Please close your eyes\n\nThe song will begin to play shortly\n')
-        song_played.setSound(filePath, secs=45, hamming=True)
+        song_played.setSound(filePath, secs=90, hamming=True)
         song_played.setVolume(1.0, log=False)
         song_played.seek(0)
         CloseEyes_Song.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
@@ -659,7 +490,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         
         thisExp.currentRoutine = CloseEyes_Song
         CloseEyes_Song.forceEnded = routineForceEnded = not continueRoutine
-        while continueRoutine and routineTimer.getTime() < 48.0:
+        while continueRoutine and routineTimer.getTime() < 93.0:
             if hasattr(thisTrial, 'status') and thisTrial.status == STOPPING:
                 continueRoutine = False
             t = routineTimer.getTime()
@@ -697,7 +528,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 song_played.play(when=win)  
             
             if song_played.status == STARTED:
-                if tThisFlipGlobal > song_played.tStartRefresh + 45-frameTolerance or song_played.isFinished:
+                if tThisFlipGlobal > song_played.tStartRefresh + 90-frameTolerance or song_played.isFinished:
                     song_played.tStop = t  
                     song_played.tStopRefresh = tThisFlipGlobal  
                     song_played.frameNStop = frameN  
@@ -739,42 +570,25 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         CloseEyes_Song.tStopRefresh = tThisFlipGlobal
         thisExp.addData('CloseEyes_Song.stopped', CloseEyes_Song.tStop)
         
-        # ==========================================
-        # STOP EEG THREAD AND SAVE TO CSV
-        # ==========================================
-        eeg_stop_event.set()
-        
-        if eeg_thread is not None:
-            eeg_thread.join(timeout=2.0) 
-        
-        with eeg_lock:
-            data_to_save = list(eeg_data)
-            eeg_data.clear()              
-        
+        # Stop PiEEG acquisition and save one CSV for this song trial.
+        data_to_save = pieeg_recorder.stop_trial(timeout=2.0)
+
         if data_to_save:
-            os.makedirs('data', exist_ok=True)
-            song_basename = os.path.splitext(os.path.basename(filePath))[0]
-            eeg_filename = f"data/{expInfo['participant']}_{expName}_trial{trials.thisN}_{song_basename}_eeg.csv"
-            
-            with open(eeg_filename, 'w', newline='') as f:
-                writer = csv_module.writer(f)
-                writer.writerow([
-                    'timestamp_s', 
-                    'ch1_uV', 'ch2_uV', 'ch3_uV', 'ch4_uV', 
-                    'ch5_uV', 'ch6_uV', 'ch7_uV', 'ch8_uV',
-                    'ch9_uV', 'ch10_uV', 'ch11_uV', 'ch12_uV', 
-                    'ch13_uV', 'ch14_uV', 'ch15_uV', 'ch16_uV'
-                ])
-                writer.writerows(data_to_save)
-                    
+            song_basename = sanitize_filename_component(os.path.splitext(os.path.basename(filePath))[0])
+            eeg_filename = os.path.join(
+                'data',
+                f"{expInfo['participant']}_{expName}_trial{trials.thisN}_{song_basename}_eeg.csv"
+            )
+            write_eeg_csv(eeg_filename, data_to_save)
+
             thisExp.addData('eeg_file', eeg_filename)
             thisExp.addData('eeg_samples', len(data_to_save))
-            thisExp.addData('drdy_timeouts', drdy_timeouts) 
         else:
             thisExp.addData('eeg_file', 'NO_DATA')
             thisExp.addData('eeg_samples', 0)
-            thisExp.addData('drdy_timeouts', drdy_timeouts)
-        # ==========================================
+        thisExp.addData('pieeg_mode', pieeg_recorder.mode)
+        thisExp.addData('drdy_timeouts', pieeg_recorder.missed_samples)
+        thisExp.addData('pieeg_zero_frames', pieeg_recorder.zero_frames)
         
         song_played.pause()  
         if CloseEyes_Song.maxDurationReached:
@@ -782,7 +596,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         elif CloseEyes_Song.forceEnded:
             routineTimer.reset()
         else:
-            routineTimer.addTime(-48.000000)
+            routineTimer.addTime(-93.000000)
         
         RateSong = data.Routine(
             name='RateSong',
