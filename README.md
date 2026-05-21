@@ -37,3 +37,14 @@ Spreadsheet of song names, relative file path of mp3 songs in my (Enrique's) com
 Contains the unofficial recording sessions. 
 
 To-Do: Test our filtering/preprocessing methods and test the quality of EEG data we get from the dry electrode piEEG caps.
+
+# References:
+
+[1] Blood, A. J., & Zatorre, R. J. (2001). Intensely pleasurable responses to music correlate with activity in brain regions implicated in reward and emotion. Proceedings of the National Academy of Sciences of the United States of America, 98(20), 11818–11823. https://doi.org/10.1073/pnas.191355898
+
+[2] Hadjidimitriou, Stelios K., and Leontios J. Hadjileontiadis. “Toward an EEG-Based Recognition of Music Liking Using Time-Frequency Analysis.” IEEE Transactions on Biomedical Engineering 59, no. 12 (2012): 3498–510. https://doi.org/10.1109/TBME.2012.2217495.
+
+[3] Kondoh, S., Etani, T., Sakakibara, Y., Naruse, Y., Imamura, Y., Ibaraki, T., & Fujii, S. (2024). A chill brain-music interface for enhancing music chills with personalized playlists. Neuroscience. https://doi.org/10.1101/2024.11.07.621657
+
+[4] Mendivil Sauceda, Jesus Arturo, Bogart Yail Marquez, and José Jaime Esqueda Elizondo. “Emotion Classification from Electroencephalographic Signals Using Machine Learning.” Brain Sciences 14, no. 12 (2024): 1211. https://doi.org/10.3390/brainsci14121211.
+
