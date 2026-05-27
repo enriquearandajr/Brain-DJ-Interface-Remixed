@@ -1,5 +1,9 @@
 # BDJI Directory
 
+## Open Labs Page:
+
+https://www.notion.so/decoded-brain/Brain-DJ-Interface-BDJI-32be37a75f4180ffaac9fbb3034954ab?source=copy_link
+
 ## Demo: 
 
 Instructions:
