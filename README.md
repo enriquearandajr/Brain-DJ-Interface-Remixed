@@ -15,19 +15,8 @@ Summary:
 <img width="521" height="259" alt="Screenshot 2026-05-13 at 10 37 40 PM" src="https://github.com/user-attachments/assets/aa5c89f6-03d1-4b76-8fa5-864f38743b85" />
 
 
-## DB-BMI.py: 
-Python script built by PscyhoPy Builder that runs the stimulus we want to present to the participants
-- Changes made:
-  - Global 60 second baseline
-  - 10 second pre song baseline
-  - Uses helper functions from pieeg_lsl_helper.py to facilitate EEG recording
-  
-## pieeg_lsl_streamer.py:
-Python script that reads 16-channel EEG data from a PiEEG board using SPI and broadcasting it as an LSL stream.
-
-## pieeg_lsl_helper.py:
-Python script that provides helper functions for both DB-BMI.py and pieeg_lsl_streamer.py to facilitate communication
-- Allows DB-BMI.py to present stimulus while letting pieeg_lsl_streamer.py to record EEG data
+## src (folder):
+Main folder containing DB-BMI.py, pieeg_lsl_helper.py, and pieeg_lsl_streamer.py
 
 ## data_filtering.ipynb:
 Python notebook with current filtering methods using test data from our unofficial EEG data
