@@ -4,7 +4,7 @@
 https://www.notion.so/decoded-brain/Brain-DJ-Interface-BDJI-32be37a75f4180ffaac9fbb3034954ab?source=copy_link
 
 ## data :
-Contains raw and processed data folders 
+Data files from the project, contains raw and processed data folders 
 
 ## media : 
 Contains the Demo and pictures of the project
