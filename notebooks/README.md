@@ -1,3 +1,6 @@
+# notebooks (folder)
+Containing the preprocessing and machine learning notebooks
+
 ## data_filtering.ipynb:
 Python notebook with current filtering methods using test data from our unofficial EEG data
 
