@@ -3,16 +3,19 @@
 ## Open Labs Page:
 https://www.notion.so/decoded-brain/Brain-DJ-Interface-BDJI-32be37a75f4180ffaac9fbb3034954ab?source=copy_link
 
-## data (folder):
+## data :
 Contains raw and processed data folders 
 
-## notebooks (folder):
+## media : 
+Contains the Demo and pictures of the project
+
+## notebooks :
 Containing the preprocessing and machine learning notebooks
 
-## src (folder):
+## src :
 Main folder containing DB-BMI.py, pieeg_lsl_helper.py, and pieeg_lsl_streamer.py
 
-## tools (folder):
+## tools :
 Tools for the DB-BMI.py file to use when presenting stimulus
 
 # References:
