@@ -1,8 +1,8 @@
-# media (folder):
+# media :
 Contains the Demo and pictures of the project
 
 
-## Demo (Outdated, no baseline): 
+## Demo (Outdated, no baseline) : 
 Instructions:
 
 https://github.com/user-attachments/assets/de8a0860-95b7-4a5b-928a-16add1a49089
