@@ -3,7 +3,7 @@ Containing the preprocessing and machine learning notebooks
 
 ## data_filtering.ipynb :
 Python notebook with current filtering methods using test data from our unofficial EEG data
-To view notebook: 
+To view notebook: https://githubtocolab.com/decodingthebrain/ucsd-brain-to-music-interface/edit/earanda4-organized-repo/notebooks/data_filtering.ipynb
 
 To-Do: review filtering/preprocessing methods
 
