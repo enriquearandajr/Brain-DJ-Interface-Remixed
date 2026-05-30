@@ -14,18 +14,17 @@ Summary:
 
 <img width="521" height="259" alt="Screenshot 2026-05-13 at 10 37 40 PM" src="https://github.com/user-attachments/assets/aa5c89f6-03d1-4b76-8fa5-864f38743b85" />
 
-
-## src (folder):
-Main folder containing DB-BMI.py, pieeg_lsl_helper.py, and pieeg_lsl_streamer.py
+## data (folder):
+Contains raw and processed data folders 
 
 ## notebooks (folder):
 Containing the preprocessing and machine learning notebooks
 
+## src (folder):
+Main folder containing DB-BMI.py, pieeg_lsl_helper.py, and pieeg_lsl_streamer.py
 
-
-## data (folder)
-Contains raw and processed data folders 
-
+## tools (folder):
+Tools for the DB-BMI.py file to use when presenting stimulus
 
 # References:
 
