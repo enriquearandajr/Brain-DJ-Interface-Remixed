@@ -18,21 +18,14 @@ Summary:
 ## src (folder):
 Main folder containing DB-BMI.py, pieeg_lsl_helper.py, and pieeg_lsl_streamer.py
 
-## data_filtering.ipynb:
-Python notebook with current filtering methods using test data from our unofficial EEG data
+## notebooks (folder):
+Containing the preprocessing and machine learning notebooks
 
-To-Do: review filtering/preprocessing methods
 
-## diversify_playlist.ipynb:
-Abe's VGGish model that takes the top 100 songs from the last 10 years and makes a playlist of the most diverse 100 songs
-
-## dur_song_diversity_100.csv
-Spreadsheet of song names, relative file path of mp3 songs in my (Enrique's) computer, and the duration of each songs (currently not in use)
 
 ## data (folder)
-Contains the unofficial recording sessions. 
+Contains raw and processed data folders 
 
-To-Do: Test our filtering/preprocessing methods and test the quality of EEG data we get from the dry electrode piEEG caps.
 
 # References:
 
