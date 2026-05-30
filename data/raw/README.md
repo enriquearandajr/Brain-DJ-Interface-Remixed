@@ -1,2 +1,2 @@
-# raw (folder)
+# raw :
 Raw, unprocessed data files
