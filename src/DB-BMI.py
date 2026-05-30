@@ -43,7 +43,14 @@ def cleanup_hardware():
 
 # --- Setup global variables (available in all functions) ---
 deviceManager = hardware.DeviceManager()
-_thisDir = os.path.dirname(os.path.abspath(__file__))
+# _thisDir = os.path.dirname(os.path.abspath(__file__))
+# Now organized repo
+_srcDir = os.path.dirname(os.path.abspath(__file__))
+_rootDir = os.path.abspath(os.path.join(_srcDir, '..'))
+
+_dataDir = os.path.join(_rootDir, 'data', 'raw')
+_toolsDir = os.path.join(_rootDir, 'tools')
+
 psychopyVersion = '2026.1.3'
 expName = 'DB-BMI'  
 expVersion = ''
@@ -84,8 +91,8 @@ def setupData(expInfo, dataDir=None):
         expInfo[newKey] = expInfo.pop(key)
     
     if dataDir is None:
-        dataDir = _thisDir
-    filename = u'data/%s_%s_%s' % (expInfo['participant'], expName, expInfo['date'])
+        dataDir = _dataDir
+    filename = u'%s_%s_%s' % (expInfo['participant'], expName, expInfo['date'])
     if os.path.isabs(filename):
         dataDir = os.path.commonprefix([dataDir, filename])
         filename = os.path.relpath(filename, dataDir)
@@ -93,9 +100,11 @@ def setupData(expInfo, dataDir=None):
     thisExp = data.ExperimentHandler(
         name=expName, version=expVersion,
         extraInfo=expInfo, runtimeInfo=None,
-        originPath='/Users/earanda/DB-BDJI-PSYCHOPY/DB-BMI.py',
+
+        #originPath='/Users/earanda/DB-BDJI-PSYCHOPY/DB-BMI.py',
+        originPath = os.path.abspath(__file__),
         savePickle=True, saveWideText=True,
-        dataFileName=dataDir + os.sep + filename, sortColumns='time'
+        dataFileName=os.path.join(dataDir, filename), sortColumns='time'
     )
     thisExp.addData('piloting', PILOTING, priority=priority.LOW)
     thisExp.setPriority('thisRow.t', priority.CRITICAL)
@@ -204,7 +213,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             deviceClass='keyboard', deviceName='defaultKeyboard', backend='PsychToolbox'
         )
     eyetracker = deviceManager.getDevice('eyetracker')
-    os.chdir(_thisDir)
+    os.chdir(_rootDir)
     filename = thisExp.dataFileName
     frameTolerance = 0.001 
     endExpNow = False 
@@ -231,7 +240,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     summary_text = "Your Song Ratings:\n\n"
 
     BaselineText = visual.TextStim(win=win, name='BaselineText',
-        text='                    ** IMPORTANT **\n\nWe will now record a 60-second resting baseline.\n\nPlease close your eyes, relax your jaw, and sit as still as possible. \n\nA beep will play signalling to open your eyes.',
+        text='** IMPORTANT **\n\nWe are recording a 60-second resting baseline.\n\nPlease close your eyes, relax your jaw, and sit as still as possible. \n\nA beep will play signalling to open your eyes.',
         font='Arial', pos=(0, 0), draggable=False, height=0.05, color='white', depth=0.0)
 
     ReadyText = visual.TextStim(win=win, name='ReadyText',
@@ -486,8 +495,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
 
     data_to_save = pieeg_recorder.stop_trial(timeout=2.0)
     if data_to_save:
-        os.makedirs('data', exist_ok=True)
-        baseline_filename = os.path.join('data', f"{expInfo['participant']}_{expName}_60s_baseline_eeg.csv")
+        os.makedirs(_dataDir, exist_ok=True)
+        baseline_filename = os.path.join(_dataDir, f"{expInfo['participant']}_{expName}_60s_baseline_eeg.csv")
         write_eeg_csv(baseline_filename, data_to_save)
         thisExp.addData('baseline_60s_file', baseline_filename)
         thisExp.addData('baseline_60s_samples', len(data_to_save))
@@ -504,7 +513,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     ReadyForMusic = data.Routine(name='ReadyForMusic', components=[ReadyText, baselineBeep])
     ReadyForMusic.status = NOT_STARTED
     continueRoutine = True
-    baselineBeep.setSound('beep-09.mp3', secs=1.0, hamming=True)
+    baselineBeep.setSound(os.path.join(_toolsDir, 'beep-09.mp3'), secs=1.0, hamming=True)
     baselineBeep.setVolume(1.0, log=False)
     baselineBeep.seek(0)
     ReadyForMusic.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
@@ -554,6 +563,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     routineTimer.addTime(-5.000000)
     thisExp.nextEntry()
 
+    conditions_path = os.path.join(_toolsDir, 'dur_song_diversity_100.csv - Sheet1.csv')
     trials = data.TrialHandler2(
         name='trials',
         nReps=1, 
@@ -561,7 +571,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         extraInfo=expInfo, 
         originPath=-1, 
         trialList=data.importConditions(
-        'dur_song_diversity_100.csv - Sheet1.csv', 
+        conditions_path, 
         selection=np.random.choice(100, 5, replace=False)
     )
     , 
@@ -639,8 +649,9 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
 
         data_to_save_10s = pieeg_recorder.stop_trial(timeout=2.0)
         if data_to_save_10s:
-            os.makedirs('data', exist_ok=True)
-            b10_filename = os.path.join('data', f"{expInfo['participant']}_{expName}_trial{trials.thisN}_10s_baseline.csv")
+            # os.makedirs('data', exist_ok=True)
+            os.makedirs(_dataDir, exist_ok=True)
+            b10_filename = os.path.join(_dataDir, f"{expInfo['participant']}_{expName}_trial{trials.thisN}_10s_baseline.csv")
             write_eeg_csv(b10_filename, data_to_save_10s)
             thisExp.addData('baseline_10s_file', b10_filename)
             thisExp.addData('baseline_10s_samples', len(data_to_save_10s))
@@ -661,7 +672,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         pieeg_recorder.start_trial()
 
         CloseEyesText.setText('Please close your eyes\n\nThe song will begin to play shortly\n')
-        song_played.setSound(filePath, secs=90, hamming=True)
+        full_audio_path = os.path.join(_toolsDir, filePath) # filePath is defined in the conditions CSV
+        song_played.setSound(full_audio_path, secs=90, hamming=True) # filePath is defined in the conditions CSV
         song_played.setVolume(1.0, log=False)
         song_played.seek(0)
         CloseEyes_Song.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
@@ -767,9 +779,9 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         data_to_save = pieeg_recorder.stop_trial(timeout=2.0)
 
         if data_to_save:
-            song_basename = sanitize_filename_component(os.path.splitext(os.path.basename(filePath))[0])
+            song_basename = sanitize_filename_component(os.path.splitext(os.path.basename(filePath))[0]) # filePath is defined in the conditions CSV
             eeg_filename = os.path.join(
-                'data',
+                _dataDir,
                 f"{expInfo['participant']}_{expName}_trial{trials.thisN}_{song_basename}_eeg.csv"
             )
             write_eeg_csv(eeg_filename, data_to_save)
@@ -797,7 +809,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         )
         RateSong.status = NOT_STARTED
         continueRoutine = True
-        beep.setSound('beep-09.mp3', secs=1.0, hamming=True)
+        beep.setSound(os.path.join(_toolsDir, 'beep-09.mp3'), secs=1.0, hamming=True)
         beep.setVolume(1.0, log=False)
         beep.seek(0)
         song_rating.keys = []
@@ -922,7 +934,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             trials.addData('song_rating.duration', song_rating.duration)
         
         rating = song_rating.keys if song_rating.keys else "None"
-        summary_text += f"{song} - Rating: {rating}\n"
+        summary_text += f"{song} - Rating: {rating}\n" # song is defined in the conditions CSV
         routineTimer.reset()
         
         Familiarity = data.Routine(
