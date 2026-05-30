@@ -1,4 +1,5 @@
 # tools Folder
+Tools for the DB-BMI.py file to use when presenting stimulus
 
 ## beep-09.mp3
 mp3 File of the beep that plays to let the user know to open their eyes
