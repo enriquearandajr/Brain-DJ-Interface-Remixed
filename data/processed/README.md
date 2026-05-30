@@ -1,2 +1,2 @@
-# processed (folder)
+# processed :
 Preprocessed, clean data files
