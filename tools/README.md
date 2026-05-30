@@ -1,8 +1,8 @@
-# tools Folder
+# tools :
 Tools for the DB-BMI.py file to use when presenting stimulus
 
-## beep-09.mp3
+## beep-09.mp3 :
 mp3 File of the beep that plays to let the user know to open their eyes
 
-## dur_song_diversity_100.csv
+## dur_song_diversity_100.csv :
 Spreadsheet of song names, relative file path of mp3 songs in my (Enrique's) computer, and the duration of each songs (currently not in use)
