@@ -3,6 +3,9 @@
 ## Open Labs Page :
 https://www.notion.so/decoded-brain/Brain-DJ-Interface-BDJI-32be37a75f4180ffaac9fbb3034954ab?source=copy_link
 
+## Discord :
+https://discord.gg/apDswderQ
+
 ## data :
 Data files from the project, contains raw and processed data folders 
 
