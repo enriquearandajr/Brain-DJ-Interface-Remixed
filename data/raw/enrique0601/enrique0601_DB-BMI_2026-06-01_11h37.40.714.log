@@ -1,0 +1,227 @@
+11.7563 	INFO 	Loaded monitor calibration from ['2026_05_11 13:53']
+11.7636 	WARNING 	User requested fullscreen with size [1024  768], but screen is actually [1920, 1080]. Using actual size
+11.9343 	INFO 	Using renderer 'AMD Radeon(TM) Graphics' for graphics
+11.9343 	INFO 	OpenGL version supported by driver is 4..
+12.0420 	EXP 	Created window1 = Window(allowGUI=False, allowStencil=False, autoLog=True, backendConf=UNKNOWN, backgroundFit=<method-wrapper '__getattribute__' of attributeSetter object at 0x0000029707C66D90>, backgroundImage=<method-wrapper '__getattribute__' of attributeSetter object at 0x0000029707C67710>, bitsMode=UNKNOWN, blendMode='avg', bpc=(8, 8, 8), color=array([-1., -1., -1.]), colorSpace='rgb', depthBits=8, fullscr=True, gamma=None, gammaErrorPolicy='raise', infoMsg=UNKNOWN, lms=UNKNOWN, monitor=<psychopy.monitors.calibTools.Monitor object at 0x0000029707D97710>, multiSample=False, name='window1', numSamples=2, pos=[np.float64(0.0), np.float64(0.0)], screen=0, size=array([1920, 1080]), stencilBits=0, stereo=False, title='PsychoPy', units='height', useFBO=True, useRetina=False, viewOri=0.0, viewPos=None, viewScale=None, waitBlanking=True, winType='pyglet')
+12.0421 	EXP 	window1: backgroundImage = ''
+12.0421 	EXP 	window1: backgroundFit = 'none'
+12.1457 	INFO 	keyboard.Keyboard is using ptb backend.
+12.1458 	EXP 	DB-BMI: status = STARTED
+12.2017 	EXP 	Created instructionsText = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0.0, draggable=False, flipHoriz=False, flipVert=False, font='Arial', fontFiles=[], height=np.float64(0.05), italic=False, languageStyle='LTR', name='instructionsText', opacity=1, ori=0.0, pos=array([0., 0.]), rgb=UNKNOWN, text=str(...), units='height', win=Window(...), wrapWidth=1)
+12.2067 	EXP 	Created welcomeText = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=-1.0, draggable=False, flipHoriz=False, flipVert=False, font='Arial', fontFiles=[], height=np.float64(0.05), italic=False, languageStyle='LTR', name='welcomeText', opacity=1, ori=0.0, pos=array([0., 0.]), rgb=UNKNOWN, text=str(...), units='height', win=Window(...), wrapWidth=1)
+12.2143 	EXP 	Created BaselineText = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0.0, draggable=False, flipHoriz=False, flipVert=False, font='Arial', fontFiles=[], height=np.float64(0.05), italic=False, languageStyle='LTR', name='BaselineText', opacity=1.0, ori=0.0, pos=array([0., 0.]), rgb=UNKNOWN, text=str(...), units='height', win=Window(...), wrapWidth=1)
+12.2176 	EXP 	Created ReadyText = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0.0, draggable=False, flipHoriz=False, flipVert=False, font='Arial', fontFiles=[], height=np.float64(0.05), italic=False, languageStyle='LTR', name='ReadyText', opacity=1.0, ori=0.0, pos=array([0., 0.]), rgb=UNKNOWN, text='You are now ready to start listening to music!', units='height', win=Window(...), wrapWidth=1)
+12.3584 	INFO 	Loaded psychtoolbox audio version 3.0.19.696976569
+12.4171 	WARNING 	No default speaker specified in Preferences / Hardware, using first speaker found: Speakers (C-Media(R) Audio)
+12.5159 	INFO 	Created stream for speaker device: Speakers (C-Media(R) Audio) (6.0)
+12.5174 	EXP 	baselineBeep: sampleRate = 48000
+12.5174 	EXP 	baselineBeep: channels = None
+12.5190 	EXP 	Sound baselineBeep set volume 1.000
+12.5228 	EXP 	Created PreSongBaselineText = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0.0, draggable=False, flipHoriz=False, flipVert=False, font='Arial', fontFiles=[], height=np.float64(0.05), italic=False, languageStyle='LTR', name='PreSongBaselineText', opacity=1.0, ori=0.0, pos=array([0., 0.]), rgb=UNKNOWN, text=str(...), units='height', win=Window(...), wrapWidth=1)
+12.5234 	EXP 	Created CloseEyesText = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=-1.0, draggable=False, flipHoriz=False, flipVert=False, font='Arial', fontFiles=[], height=0.05, italic=False, languageStyle='LTR', name='CloseEyesText', opacity=1, ori=0.0, pos=array([0., 0.]), rgb=UNKNOWN, text='', units='height', win=Window(...), wrapWidth=1)
+12.5362 	WARNING 	No default speaker specified in Preferences / Hardware, using first speaker found: Speakers (C-Media(R) Audio)
+12.5413 	INFO 	Created stream for speaker device: Speakers (C-Media(R) Audio) (6.0)
+12.5426 	EXP 	song_played: sampleRate = 48000
+12.5426 	EXP 	song_played: channels = None
+12.5525 	EXP 	Sound song_played set volume 1.000
+12.5650 	WARNING 	No default speaker specified in Preferences / Hardware, using first speaker found: Speakers (C-Media(R) Audio)
+12.5704 	INFO 	Created stream for speaker device: Speakers (C-Media(R) Audio) (6.0)
+12.5717 	EXP 	beep: sampleRate = 48000
+12.5718 	EXP 	beep: channels = None
+12.5730 	EXP 	Sound beep set volume 1.000
+12.5793 	EXP 	Created RateSongText = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=-1.0, draggable=False, flipHoriz=False, flipVert=False, font='Arial', fontFiles=[], height=np.float64(0.05), italic=False, languageStyle='LTR', name='RateSongText', opacity=1, ori=0.0, pos=array([0., 0.]), rgb=UNKNOWN, text=str(...), units='height', win=Window(...), wrapWidth=1)
+12.5847 	EXP 	Created FamiliarityText = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0.0, draggable=False, flipHoriz=False, flipVert=False, font='Arial', fontFiles=[], height=np.float64(0.05), italic=False, languageStyle='LTR', name='FamiliarityText', opacity=1, ori=0.0, pos=array([0., 0.]), rgb=UNKNOWN, text=str(...), units='height', win=Window(...), wrapWidth=1)
+12.5874 	EXP 	Created ThankYouText = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0.0, draggable=False, flipHoriz=False, flipVert=False, font='Arial', fontFiles=[], height=np.float64(0.05), italic=False, languageStyle='LTR', name='ThankYouText', opacity=1, ori=0.0, pos=array([0., 0.]), rgb=UNKNOWN, text=str(...), units='height', win=Window(...), wrapWidth=1)
+12.5880 	EXP 	Created Summary = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=-1.0, draggable=False, flipHoriz=False, flipVert=False, font='Arial', fontFiles=[], height=0.05, italic=False, languageStyle='LTR', name='Summary', opacity=1, ori=0.0, pos=array([0., 0.]), rgb=UNKNOWN, text='', units='height', win=Window(...), wrapWidth=1)
+0.9315 	EXP 	welcomeText: autoDraw = True
+2.9938 	EXP 	instructionsText: autoDraw = True
+3.9244 	EXP 	welcomeText: autoDraw = False
+11.9867 	EXP 	instructionsText: autoDraw = False
+11.9867 	EXP 	instructionsText: autoDraw = False
+11.9867 	EXP 	welcomeText: autoDraw = False
+11.9867 	EXP 	BaselineText: autoDraw = True
+72.0708 	EXP 	baselineBeep: sampleRate = 44100
+72.0732 	INFO 	Resampled audio from 44100Hz to 48000Hz using method 'default'.
+72.0737 	EXP 	Sound baselineBeep reached end of file
+72.0815 	EXP 	Playing sound baselineBeep on speaker Speakers (C-Media(R) Audio)
+72.0773 	EXP 	BaselineText: autoDraw = False
+72.0773 	EXP 	BaselineText: autoDraw = False
+72.0773 	EXP 	ReadyText: autoDraw = True
+73.0769 	EXP 	Sound baselineBeep stopped
+76.0773 	EXP 	Imported c:\Users\enriq\OneDrive\Documents\GitHub\ucsd-brain-to-music-interface\tools\dur_song_diversity_100.csv - Sheet1.csv as conditions, 5 conditions, 3 params
+76.0776 	EXP 	New trial (rep=0, index=0): <Trial 0 (0 in rep 0) data={'song': 'coldplay - adventure of a lifetime', 'filePath': 'diverse_playlist_100_songs/coldplay - adventure of a lifetime.mp3', 'songDuration': np.int64(264), 'thisN': 0, 'thisTrialN': 0, 'thisRepN': 0}>
+76.0957 	EXP 	ReadyText: autoDraw = False
+76.0957 	EXP 	ReadyText: autoDraw = False
+76.0957 	EXP 	PreSongBaselineText: height = np.float64(0.05)
+76.0957 	EXP 	PreSongBaselineText: height = np.float64(0.05)
+76.0957 	EXP 	PreSongBaselineText: height = np.float64(0.05)
+76.0957 	EXP 	PreSongBaselineText: text = 'Song 2/5\n\nRecording 10-second resting baseline...\n\nPlease close your eyes and remain still.'
+76.0957 	EXP 	PreSongBaselineText: autoDraw = True
+86.1263 	EXP 	song_played: sampleRate = 48000
+86.5541 	EXP 	PreSongBaselineText: autoDraw = False
+86.5541 	EXP 	PreSongBaselineText: autoDraw = False
+86.5541 	EXP 	CloseEyesText: height = np.float64(0.05)
+86.5541 	EXP 	CloseEyesText: height = np.float64(0.05)
+86.5541 	EXP 	CloseEyesText: height = np.float64(0.05)
+86.5541 	EXP 	CloseEyesText: text = 'Please close your eyes\n\nThe song will begin to play shortly\n'
+86.9888 	EXP 	CloseEyesText: autoDraw = True
+89.9790 	EXP 	CloseEyesText: autoDraw = False
+89.9861 	EXP 	Sound song_played reached end of file
+90.0026 	EXP 	Playing sound song_played on speaker Speakers (C-Media(R) Audio)
+179.9961 	EXP 	Sound song_played stopped
+180.2176 	EXP 	beep: sampleRate = 44100
+180.2195 	INFO 	Resampled audio from 44100Hz to 48000Hz using method 'default'.
+180.2199 	EXP 	Sound beep reached end of file
+180.2358 	EXP 	Playing sound beep on speaker Speakers (C-Media(R) Audio)
+180.2224 	EXP 	CloseEyesText: autoDraw = False
+180.9904 	INFO 	Keyboard events cleared
+180.9904 	EXP 	RateSongText: autoDraw = True
+181.2325 	EXP 	Sound beep stopped
+183.8879 	EXP 	Device response: <KeyPress from None: t=183.87967000000003, value=7, duration=None>
+183.8889 	DATA 	Keypress: 7
+183.8912 	INFO 	Keyboard events cleared
+183.8912 	EXP 	RateSongText: autoDraw = False
+183.8912 	EXP 	FamiliarityText: autoDraw = True
+183.9540 	EXP 	Device response: <KeyPress from None: t=183.87967000000003, value=7, duration=0.06990989999985686>
+185.0512 	EXP 	Device response: <KeyPress from None: t=185.04588549999994, value=y, duration=None>
+185.0513 	EXP 	New trial (rep=0, index=1): <Trial 1 (1 in rep 0) data={'song': 'lady gaga - abracadabra', 'filePath': 'diverse_playlist_100_songs/lady gaga - abracadabra.mp3', 'songDuration': np.int64(224), 'thisN': 1, 'thisTrialN': 1, 'thisRepN': 0}>
+185.0770 	EXP 	song_played: sampleRate = 48000
+185.4763 	EXP 	Device response: <KeyPress from None: t=185.04588549999994, value=y, duration=0.08690990000013699>
+185.4769 	DATA 	Keypress: y
+185.4798 	EXP 	FamiliarityText: autoDraw = False
+185.4798 	EXP 	PreSongBaselineText: height = np.float64(0.05)
+185.4798 	EXP 	PreSongBaselineText: height = np.float64(0.05)
+185.4798 	EXP 	PreSongBaselineText: height = np.float64(0.05)
+185.4798 	EXP 	PreSongBaselineText: text = 'Song 3/5\n\nRecording 10-second resting baseline...\n\nPlease close your eyes and remain still.'
+185.4798 	EXP 	PreSongBaselineText: autoDraw = False
+185.4798 	EXP 	CloseEyesText: text = 'Please close your eyes\n\nThe song will begin to play shortly\n'
+195.0443 	EXP 	CloseEyesText: autoDraw = True
+198.0374 	EXP 	CloseEyesText: autoDraw = False
+198.0376 	EXP 	Sound song_played reached end of file
+198.0541 	EXP 	Playing sound song_played on speaker Speakers (C-Media(R) Audio)
+288.0579 	EXP 	Sound song_played stopped
+288.2571 	EXP 	beep: sampleRate = 44100
+288.2596 	INFO 	Resampled audio from 44100Hz to 48000Hz using method 'default'.
+288.2600 	EXP 	Sound beep reached end of file
+288.2758 	EXP 	Playing sound beep on speaker Speakers (C-Media(R) Audio)
+288.2683 	EXP 	CloseEyesText: autoDraw = False
+289.0430 	INFO 	Keyboard events cleared
+289.0429 	EXP 	RateSongText: autoDraw = True
+289.2697 	EXP 	Sound beep stopped
+291.0265 	EXP 	Device response: <KeyPress from None: t=291.0247325999999, value=7, duration=None>
+291.0278 	DATA 	Keypress: 7
+291.0332 	INFO 	Keyboard events cleared
+291.0331 	EXP 	RateSongText: autoDraw = False
+291.0331 	EXP 	FamiliarityText: autoDraw = True
+291.0960 	EXP 	Device response: <KeyPress from None: t=291.0247325999999, value=7, duration=0.06797790000018722>
+291.9778 	EXP 	Device response: <KeyPress from None: t=291.9763221999999, value=y, duration=None>
+291.9780 	EXP 	New trial (rep=0, index=2): <Trial 2 (2 in rep 0) data={'song': 'x ambassadors - unsteady', 'filePath': 'diverse_playlist_100_songs/x ambassadors - unsteady.mp3', 'songDuration': np.int64(192), 'thisN': 2, 'thisTrialN': 2, 'thisRepN': 0}>
+292.0049 	EXP 	song_played: sampleRate = 48000
+292.3343 	EXP 	Device response: <KeyPress from None: t=291.9763221999999, value=y, duration=0.08338909999997668>
+292.3349 	DATA 	Keypress: y
+292.3384 	EXP 	FamiliarityText: autoDraw = False
+292.3384 	EXP 	PreSongBaselineText: height = np.float64(0.05)
+292.3384 	EXP 	PreSongBaselineText: height = np.float64(0.05)
+292.3384 	EXP 	PreSongBaselineText: height = np.float64(0.05)
+292.3384 	EXP 	PreSongBaselineText: text = 'Song 4/5\n\nRecording 10-second resting baseline...\n\nPlease close your eyes and remain still.'
+292.3384 	EXP 	PreSongBaselineText: autoDraw = False
+292.3384 	EXP 	CloseEyesText: text = 'Please close your eyes\n\nThe song will begin to play shortly\n'
+301.9673 	EXP 	CloseEyesText: autoDraw = True
+304.9603 	EXP 	CloseEyesText: autoDraw = False
+304.9606 	EXP 	Sound song_played reached end of file
+304.9770 	EXP 	Playing sound song_played on speaker Speakers (C-Media(R) Audio)
+394.9771 	EXP 	Sound song_played stopped
+395.1380 	EXP 	beep: sampleRate = 44100
+395.1398 	INFO 	Resampled audio from 44100Hz to 48000Hz using method 'default'.
+395.1402 	EXP 	Sound beep reached end of file
+395.1436 	EXP 	Playing sound beep on speaker Speakers (C-Media(R) Audio)
+395.1425 	EXP 	CloseEyesText: autoDraw = False
+395.9731 	INFO 	Keyboard events cleared
+395.9730 	EXP 	RateSongText: autoDraw = True
+396.1373 	EXP 	Sound beep stopped
+401.1092 	EXP 	Device response: <KeyPress from None: t=401.1060396999999, value=5, duration=None>
+401.1098 	DATA 	Keypress: 5
+401.1161 	INFO 	Keyboard events cleared
+401.1160 	EXP 	RateSongText: autoDraw = False
+401.1160 	EXP 	FamiliarityText: autoDraw = True
+401.1995 	EXP 	Device response: <KeyPress from None: t=401.1060396999999, value=5, duration=0.0922485000000961>
+402.3314 	EXP 	Device response: <KeyPress from None: t=402.32890280000015, value=y, duration=None>
+402.3316 	EXP 	New trial (rep=0, index=3): <Trial 3 (3 in rep 0) data={'song': 'the marias - no one noticed', 'filePath': 'diverse_playlist_100_songs/the marias - no one noticed.mp3', 'songDuration': np.int64(238), 'thisN': 3, 'thisTrialN': 3, 'thisRepN': 0}>
+402.3609 	EXP 	song_played: sampleRate = 48000
+402.7535 	EXP 	Device response: <KeyPress from None: t=402.32890280000015, value=y, duration=0.09099359999981971>
+402.7542 	DATA 	Keypress: y
+402.7689 	EXP 	FamiliarityText: autoDraw = False
+402.7689 	EXP 	PreSongBaselineText: height = np.float64(0.05)
+402.7689 	EXP 	PreSongBaselineText: height = np.float64(0.05)
+402.7689 	EXP 	PreSongBaselineText: height = np.float64(0.05)
+402.7689 	EXP 	PreSongBaselineText: text = 'Song 5/5\n\nRecording 10-second resting baseline...\n\nPlease close your eyes and remain still.'
+402.7689 	EXP 	PreSongBaselineText: autoDraw = False
+402.7689 	EXP 	CloseEyesText: text = 'Please close your eyes\n\nThe song will begin to play shortly\n'
+412.3222 	EXP 	CloseEyesText: autoDraw = True
+415.3152 	EXP 	CloseEyesText: autoDraw = False
+415.3154 	EXP 	Sound song_played reached end of file
+415.3319 	EXP 	Playing sound song_played on speaker Speakers (C-Media(R) Audio)
+505.3276 	EXP 	Sound song_played stopped
+505.5506 	EXP 	beep: sampleRate = 44100
+505.5523 	INFO 	Resampled audio from 44100Hz to 48000Hz using method 'default'.
+505.5526 	EXP 	Sound beep reached end of file
+505.5651 	EXP 	Playing sound beep on speaker Speakers (C-Media(R) Audio)
+505.5550 	EXP 	CloseEyesText: autoDraw = False
+506.3233 	INFO 	Keyboard events cleared
+506.3233 	EXP 	RateSongText: autoDraw = True
+506.5607 	EXP 	Sound beep stopped
+507.9800 	EXP 	Device response: <KeyPress from None: t=507.9745311999998, value=2, duration=None>
+507.9807 	DATA 	Keypress: 2
+507.9869 	INFO 	Keyboard events cleared
+507.9869 	EXP 	RateSongText: autoDraw = False
+507.9869 	EXP 	FamiliarityText: autoDraw = True
+508.0981 	EXP 	Device response: <KeyPress from None: t=507.9745311999998, value=2, duration=0.12112460000025749>
+508.9175 	EXP 	Device response: <KeyPress from None: t=508.9114637, value=n, duration=None>
+508.9177 	EXP 	New trial (rep=0, index=4): <Trial 4 (4 in rep 0) data={'song': 'selena gomez - same old love', 'filePath': 'diverse_playlist_100_songs/selena gomez - same old love.mp3', 'songDuration': np.int64(229), 'thisN': 4, 'thisTrialN': 4, 'thisRepN': 0}>
+508.9441 	EXP 	song_played: sampleRate = 48000
+509.3356 	EXP 	Device response: <KeyPress from None: t=508.9114637, value=n, duration=0.0916824999999335>
+509.3362 	DATA 	Keypress: n
+509.3459 	EXP 	FamiliarityText: autoDraw = False
+509.3459 	EXP 	PreSongBaselineText: height = np.float64(0.05)
+509.3459 	EXP 	PreSongBaselineText: height = np.float64(0.05)
+509.3459 	EXP 	PreSongBaselineText: height = np.float64(0.05)
+509.3459 	EXP 	PreSongBaselineText: text = 'Song 6/5\n\nRecording 10-second resting baseline...\n\nPlease close your eyes and remain still.'
+509.3459 	EXP 	PreSongBaselineText: autoDraw = False
+509.3459 	EXP 	CloseEyesText: text = 'Please close your eyes\n\nThe song will begin to play shortly\n'
+518.9126 	EXP 	CloseEyesText: autoDraw = True
+521.9054 	EXP 	CloseEyesText: autoDraw = False
+521.9055 	EXP 	Sound song_played reached end of file
+521.9220 	EXP 	Playing sound song_played on speaker Speakers (C-Media(R) Audio)
+611.9254 	EXP 	Sound song_played stopped
+612.0773 	EXP 	beep: sampleRate = 44100
+612.0790 	INFO 	Resampled audio from 44100Hz to 48000Hz using method 'default'.
+612.0793 	EXP 	Sound beep reached end of file
+612.0931 	EXP 	Playing sound beep on speaker Speakers (C-Media(R) Audio)
+612.0822 	EXP 	CloseEyesText: autoDraw = False
+612.9128 	INFO 	Keyboard events cleared
+612.9127 	EXP 	RateSongText: autoDraw = True
+613.0893 	EXP 	Sound beep stopped
+619.3197 	EXP 	Device response: <KeyPress from None: t=619.3154351999999, value=3, duration=None>
+619.3202 	DATA 	Keypress: 3
+619.3265 	INFO 	Keyboard events cleared
+619.3264 	EXP 	RateSongText: autoDraw = False
+619.3264 	EXP 	FamiliarityText: autoDraw = True
+619.4168 	EXP 	Device response: <KeyPress from None: t=619.3154351999999, value=3, duration=0.09917530000029728>
+620.4031 	EXP 	Device response: <KeyPress from None: t=620.3998319999998, value=y, duration=None>
+620.4146 	DATA 	Keypress: y
+620.4208 	EXP 	FamiliarityText: autoDraw = False
+620.4208 	EXP 	Summary: height = np.float64(0.05)
+620.4208 	EXP 	Summary: height = np.float64(0.05)
+620.4208 	EXP 	Summary: height = np.float64(0.05)
+620.4208 	EXP 	Summary: text = 'Your Song Ratings:\n\ncoldplay - adventure of a lifetime - Rating: 7\nlady gaga - abracadabra - Rating: 7\nx ambassadors - unsteady - Rating: 5\nthe marias - no one noticed - Rating: 2\nselena gomez - same old love - Rating: 3\n'
+620.4208 	EXP 	Summary: autoDraw = True
+620.4904 	EXP 	Device response: <KeyPress from None: t=620.3998319999998, value=y, duration=0.08830520000037723>
+625.3930 	EXP 	ThankYouText: autoDraw = True
+625.4138 	EXP 	Summary: autoDraw = False
+633.3860 	EXP 	ThankYouText: autoDraw = False
+633.3860 	EXP 	ThankYouText: autoDraw = False
+633.3860 	EXP 	Summary: autoDraw = False
+633.3861 	EXP 	DB-BMI: status = STOPPED
+633.3965 	INFO 	saved data to 'c:\\Users\\enriq\\OneDrive\\Documents\\GitHub\\ucsd-brain-to-music-interface\\data\\raw\\enrique0601_DB-BMI_2026-06-01_11h37.40.714.csv'
+633.3980 	INFO 	saved data to c:\Users\enriq\OneDrive\Documents\GitHub\ucsd-brain-to-music-interface\data\raw\enrique0601_DB-BMI_2026-06-01_11h37.40.714.psydat
+635.0380 	INFO 	Stopping keyboard key buffers.
