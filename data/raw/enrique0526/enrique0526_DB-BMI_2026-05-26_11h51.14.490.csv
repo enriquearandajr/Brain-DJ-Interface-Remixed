@@ -1,5 +1,0 @@
-﻿song,filePath,songDuration,thisN,thisTrialN,thisRepN,trials.thisRepN,trials.thisTrialN,trials.thisN,trials.thisIndex,thisRow.t,notes,piloting,Welcome.started,Baseline.started,baseline_60s_file,baseline_60s_samples,baseline_10s_file,eeg_file,eeg_samples,participant,session,date,expName,expVersion,psychopyVersion,frameRate,expStart,
-,,,,,,,,,,,,False,1.7624848999998903,,,,,,,enrique526,001,2026-05-26_11h51.27.445,DB-BMI,,2026.1.3,60.0,2026-05-26 11h51.30.296857 -0700,
-,,,,,,,,,,,,,,13.006798899999922,data\enrique526_DB-BMI_60s_baseline_eeg.csv,11901,,,,enrique526,001,2026-05-26_11h51.27.445,DB-BMI,,2026.1.3,60.0,2026-05-26 11h51.30.296857 -0700,
-,,,,,,,,,,,,,,,,,,,,enrique526,001,2026-05-26_11h51.27.445,DB-BMI,,2026.1.3,60.0,2026-05-26 11h51.30.296857 -0700,
-taylor swift - lavender haze,diverse_playlist_100_songs/taylor swift - lavender haze.mp3,207,0,0,0,0,0,0,4,77.42153849999977,,,,,,,data\enrique526_DB-BMI_trial0_10s_baseline.csv,data\enrique526_DB-BMI_trial0_taylor swift - lavender haze_eeg.csv,19136,,,,,,,,,
