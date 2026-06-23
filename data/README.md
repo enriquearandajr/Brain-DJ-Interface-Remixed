@@ -1,5 +1,5 @@
 # data :
-Data files from the project
+Data files from the initiative
 
 ## raw :
 Contains the raw, unprocessed data files
@@ -7,6 +7,4 @@ Contains the raw, unprocessed data files
 ## processed :
 Contains the preprocessed, clean data files
 
-## trial data :
-Contains first data files recorded using PiEEG, will be deleted soon
 
