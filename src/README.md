@@ -1,2 +1,0 @@
-# src :
-Contains main folders

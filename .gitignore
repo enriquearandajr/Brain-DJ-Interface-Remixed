@@ -1,2 +1,2 @@
-/songs
-/selected_songs
+.env.dev
+data/SEED_dataset/
