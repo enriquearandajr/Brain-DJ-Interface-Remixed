@@ -2,6 +2,10 @@
 
 Forked from previous Brain DJ Interface initiative
 
+## View the web app here 
+
+[Brain DJ Interface](https://enriquearandajr.github.io/Brain-DJ-Interface-Remixed/)
+
 ## Open Labs Page :
 
 
