@@ -1,2 +1,2 @@
 .env.dev
-data/SEED_dataset/
+backend/data/SEED_dataset/
