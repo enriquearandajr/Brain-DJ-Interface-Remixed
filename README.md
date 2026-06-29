@@ -8,6 +8,7 @@ Forked from previous Brain DJ Interface initiative
 
 ## Open Labs Page :
 
+[Open Labs Initiative Page](https://app.notion.com/p/decoded-brain/Brain-DJ-Interface-Remixed-38be37a75f4181ad9660c680b75e65b0?source=copy_link)
 
 ## data :
 Data files from the project, contains raw and processed data folders 
